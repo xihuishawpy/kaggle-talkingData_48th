@@ -242,9 +242,9 @@ ft = pd.DataFrame({'feature': model.feature_name(), 'split': model.feature_impor
 ft.to_csv('feature_importance_ref.csv', index=False)
 print(ft)
 
-model_name = 'model-%s' % strftime("%Y-%m-%d-%H-%M-%S", gmtime())
+model_name = f'model-{strftime("%Y-%m-%d-%H-%M-%S", gmtime())}'
 model.save_model(model_name)
-print('model saved as %s' % model_name)
+print(f'model saved as {model_name}')
 
 print('Predicting...')
 test_df['is_attributed'] = model.predict(test_features[features], num_iteration=model.best_iteration)
@@ -260,7 +260,13 @@ test = test.merge(test_df[all_cols], how='left', on=join_cols)
 test = test.drop_duplicates(subset=['click_id'])
 
 print("Writing the submission data into a csv file...")
-test[['click_id', 'is_attributed']].to_csv('submit_lgb_%s.gz'%(model.best_iteration), index=False, float_format='%.9f', compression='gzip')
+test[['click_id', 'is_attributed']].to_csv(
+    f'submit_lgb_{model.best_iteration}.gz',
+    index=False,
+    float_format='%.9f',
+    compression='gzip',
+)
+
 print("All done...")
 
 del test
@@ -297,9 +303,9 @@ xgb_model = xgb.train(xgb_params,
                       early_stopping_rounds = 100,
                       verbose_eval=5)
 
-model_name = 'xgb-model-%s' % strftime("%Y-%m-%d-%H-%M-%S", gmtime())
+model_name = f'xgb-model-{strftime("%Y-%m-%d-%H-%M-%S", gmtime())}'
 xgb_model.save_model(model_name)
-print('model saved as %s' % model_name)
+print(f'model saved as {model_name}')
 
 dtest = xgb.DMatrix(test_features)
 print('Predicting...')
@@ -315,6 +321,12 @@ test = test.merge(test_df[all_cols], how='left', on=join_cols)
 test = test.drop_duplicates(subset=['click_id'])
 
 print("Writing the submission data into a csv file...")
-test[['click_id', 'is_attributed']].to_csv('submit_xgb_%s_%s.gz' % (xgb_model.best_ntree_limit, xgb_model.best_score), index=False, float_format='%.9f', compression='gzip')
+test[['click_id', 'is_attributed']].to_csv(
+    f'submit_xgb_{xgb_model.best_ntree_limit}_{xgb_model.best_score}.gz',
+    index=False,
+    float_format='%.9f',
+    compression='gzip',
+)
+
 print("All done...")
 
